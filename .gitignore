@@ -49,3 +49,5 @@ build/
 
 # Maven
 target/
+
+process.txt

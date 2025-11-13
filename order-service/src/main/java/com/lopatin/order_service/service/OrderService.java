@@ -1,5 +1,6 @@
 package com.lopatin.order_service.service;
 
+import com.lopatin.order_service.dto.InventoryResponse;
 import com.lopatin.order_service.dto.OrderLineItemsDto;
 import com.lopatin.order_service.dto.OrderRequest;
 import com.lopatin.order_service.model.Order;
@@ -9,7 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +22,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final WebClient.Builder webClientBuilder;
 
     public void placeOrder(OrderRequest orderRequest){
         Order order = new Order();
@@ -29,7 +33,25 @@ public class OrderService {
                 .toList();
         order.setOrderLineItemsList(orderLineItemsList);
 
-        orderRepository.save(order);
+        List<String> skuCodes = order.getOrderLineItemsList().stream()
+                .map(OrderLineItems::getSkuCode)
+                .toList();
+
+        InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
+                        .uri("http://inventory-service/api/inventory",
+                                uriBuilder -> uriBuilder.queryParam("skuCodes", skuCodes).build())
+                        .retrieve()
+                        .bodyToMono(InventoryResponse[].class)
+                        .block();
+        boolean isInStock = Arrays.stream(inventoryResponseArray)
+                .allMatch(InventoryResponse::isInStock);
+
+        if (isInStock){
+            orderRepository.save(order);
+        } else {
+            throw new IllegalArgumentException("The product is not in stock!");
+        }
+
     }
 
     private OrderLineItems fromDtoToModel(OrderLineItemsDto orderLineItemsDto) {
