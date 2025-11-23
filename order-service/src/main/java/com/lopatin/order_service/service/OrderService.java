@@ -24,7 +24,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
 
-    public void placeOrder(OrderRequest orderRequest){
+    public void placeOrder(OrderRequest orderRequest, String userToken){
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
 
@@ -40,6 +40,7 @@ public class OrderService {
         InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
                         .uri("http://inventory-service/api/inventory",
                                 uriBuilder -> uriBuilder.queryParam("skuCodes", skuCodes).build())
+                        .headers(headers -> headers.setBearerAuth(userToken))
                         .retrieve()
                         .bodyToMono(InventoryResponse[].class)
                         .block();

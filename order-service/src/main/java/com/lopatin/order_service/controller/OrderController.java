@@ -6,6 +6,8 @@ import com.lopatin.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,8 +21,10 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String placeOrder(@RequestBody OrderRequest orderRequest){
-        orderService.placeOrder(orderRequest);
+    public String placeOrder(@RequestBody OrderRequest orderRequest, Authentication authentication){
+        JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
+        String jwtToken = jwtAuthenticationToken.getToken().getTokenValue();
+        orderService.placeOrder(orderRequest, jwtToken);
         return "Order successfully placed";
     }
 
