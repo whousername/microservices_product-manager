@@ -1,0 +1,1 @@
+ALTER TABLE t_inventory ADD COLUMN debug_test INT DEFAULT 0;

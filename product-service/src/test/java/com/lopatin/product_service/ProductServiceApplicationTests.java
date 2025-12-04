@@ -1,6 +1,7 @@
 package com.lopatin.product_service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lopatin.product_service.config.TestSecurityConfig;
 import com.lopatin.product_service.dto.ProductRequest;
 import com.lopatin.product_service.model.Product;
 import com.lopatin.product_service.repository.ProductRepository;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -26,10 +29,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
+@Import(TestSecurityConfig.class)
 class ProductServiceApplicationTests {
 
     @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:6.0");
+    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.5");
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,7 +48,6 @@ class ProductServiceApplicationTests {
     static void setProperties(DynamicPropertyRegistry registry){
         registry.add("spring.data.mongodb.uri",mongoDBContainer::getReplicaSetUrl);
     }
-
 
     @BeforeEach
     void cleanDatabase() {

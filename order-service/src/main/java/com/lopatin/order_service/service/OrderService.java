@@ -31,9 +31,9 @@ public class OrderService {
         List<OrderLineItems> orderLineItemsList = orderRequest.getOrderLineItemsDtoList().stream()
                 .map(this::fromDtoToModel)
                 .toList();
-        order.setOrderLineItemsList(orderLineItemsList);
+        order.setOrderLineItems(orderLineItemsList);
 
-        List<String> skuCodes = order.getOrderLineItemsList().stream()
+        List<String> skuCodes = order.getOrderLineItems().stream()
                 .map(OrderLineItems::getSkuCode)
                 .toList();
 
@@ -44,14 +44,19 @@ public class OrderService {
                         .retrieve()
                         .bodyToMono(InventoryResponse[].class)
                         .block();
+
+        if (inventoryResponseArray == null || inventoryResponseArray.length == 0) {
+            throw new IllegalArgumentException("Inventory service returned empty response");
+        }
+
         boolean isInStock = Arrays.stream(inventoryResponseArray)
                 .allMatch(InventoryResponse::isInStock);
 
-        if (isInStock){
-            orderRepository.save(order);
-        } else {
-            throw new IllegalArgumentException("The product is not in stock!");
+        if (!isInStock) {
+            throw new IllegalArgumentException("One or more products are NOT in stock");
         }
+
+        orderRepository.save(order);
 
     }
 
