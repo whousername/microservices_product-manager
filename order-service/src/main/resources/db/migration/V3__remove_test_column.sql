@@ -1,0 +1,1 @@
+ALTER TABLE t_orders DROP COLUMN debug_test;
