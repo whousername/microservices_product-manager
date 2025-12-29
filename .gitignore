@@ -50,4 +50,8 @@ build/
 # Maven
 target/
 
-process.txt
+## Notes
+progress.txt
+
+## Mongo
+product-service/data/

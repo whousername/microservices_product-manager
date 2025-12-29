@@ -4,6 +4,7 @@ import com.lopatin.product_service.dto.ProductRequest;
 import com.lopatin.product_service.dto.ProductResponse;
 import com.lopatin.product_service.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

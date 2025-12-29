@@ -14,9 +14,15 @@ public class Routes {
         return builder.routes()
 
                 .route("product-service", r -> r.path("/api/product/**")
+                        .filters(f -> f.circuitBreaker(config -> config
+                                .setName("ProductServiceCB")
+                                .setFallbackUri("forward:/fallback/product")))
                         .uri("lb://product-service"))
 
                 .route("order-service", r -> r.path("/api/order/**")
+                        .filters(f -> f.circuitBreaker(config -> config
+                                .setName("OrderServiceCB")
+                                .setFallbackUri("forward:/fallback/order")))
                         .uri("lb://order-service"))
 
                 .route("discovery-static-resources", r -> r
@@ -28,7 +34,7 @@ public class Routes {
                         .uri("http://localhost:8761"))
 
 
-                // Product Service OpenAPI
+                //Product Service OpenAPI
                 .route("product-service-swagger", r -> r
                         .path("/aggregate/product-service/v3/api-docs")
                         .filters(f -> f.setPath("/v3/api-docs"))
